@@ -57,6 +57,10 @@ app.post('/api/invitations/:id/answer',(req,res)=>{
 
 app.delete('/api/invitations/:id',(req,res)=>{ const data=readData(); const next=data.filter(x=>x.id!==req.params.id); if(next.length===data.length)return res.status(404).json({error:'Не найдено'}); writeData(next); res.json({ok:true}); });
 
+app.delete('/api/invitations/:id/answer',(req,res)=>{ const data=readData(); const i=data.findIndex(x=>x.id===req.params.id); if(i<0)return res.status(404).json({error:'Приглашение не найдено'}); if(!data[i].answer)return res.status(404).json({error:'Ответа нет'}); data[i].answer=null; writeData(data); res.json({ok:true}); });
+
+app.delete('/api/answers',(req,res)=>{ const data=readData(); const count=data.reduce((n,x)=>n+(x.answer?1:0),0); data.forEach(x=>x.answer=null); writeData(data); res.json({ok:true,deleted:count}); });
+
 app.get('/invite/:id',(req,res)=>res.sendFile(path.join(__dirname,'public','invite.html')));
 app.get('/admin',(req,res)=>res.sendFile(path.join(__dirname,'public','admin.html')));
 app.get('*',(req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
